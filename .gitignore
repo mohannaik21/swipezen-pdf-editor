@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+yarn.lock
+package-lock.json
+
+# Builds / bundles
+dist/
+build/
+out/
+
+# Editors / tools
+.vscode/
+.cursor/
+.idea/
+
+# OS / misc
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Cache
+.cache/
+.tmp/
+.eslintcache
+
+# PDF / media (optional – keep if you don’t want raw assets in Git)
+# *.pdf
+# *.png
+# *.jpg
+# *.jpeg
+# *.gif

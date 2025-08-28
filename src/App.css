@@ -1,0 +1,144 @@
+/* Additional styles for the PDF Editor */
+.pdf-page {
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.pdf-page-content {
+  padding: 40px;
+  min-height: 800px;
+  position: relative;
+}
+
+.locked-overlay {
+  position: absolute;
+  background: rgba(156, 163, 175, 0.3);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.editable-text {
+  cursor: text;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.editable-text:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.editable-text:focus {
+  background-color: rgba(59, 130, 246, 0.2);
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.text-editor {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 1000;
+  min-width: 400px;
+}
+
+.text-editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Swipezen logo styles */
+.swipezen-logo {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 120px;
+  height: 60px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.swipezen-logo::before {
+  content: "💻";
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+/* Contact info styles */
+.contact-info {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  text-align: right;
+  font-size: 12px;
+  color: #374151;
+}
+
+.contact-info div {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.contact-info .icon {
+  width: 16px;
+  height: 16px;
+  color: #3b82f6;
+}
+
+/* Page navigation */
+.page-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.page-navigation button {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-navigation button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.page-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-weight: 500;
+  color: #374151;
+}
