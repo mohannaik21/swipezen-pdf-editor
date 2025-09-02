@@ -170,3 +170,11 @@ const TextEditor = ({ text, onSave, onCancel, formatting, onFormatChange }) => {
 }
 
 export default TextEditor
+
+
+
+
+
+
+
+

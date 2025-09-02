@@ -385,6 +385,17 @@ const PDFEditor = ({ pages, currentPage, onPageChange, onSave }) => {
         </div>
       )}
       
+      {content.programOutcome && (
+        <div 
+          className={`text-lg font-bold text-gray-900 text-left mt-6 p-2 rounded ${
+            currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-50 editable-text'
+          }`}
+          onClick={() => handleTextClick(content.programOutcome, `${path}programOutcome`)}
+        >
+          {content.programOutcome}
+        </div>
+      )}
+
       {content.body && (
         <div 
           className={`text-sm text-gray-800 leading-relaxed whitespace-pre-line p-2 rounded ${
@@ -394,9 +405,10 @@ const PDFEditor = ({ pages, currentPage, onPageChange, onSave }) => {
           dangerouslySetInnerHTML={{
             __html: currentPage === 1 
               ? content.body
-                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="text-swipezen-light-blue">$1</strong>')
                   .replace(/\n\nTRAINING SESSIONS\n\n/g, '<br><br><strong>TRAINING SESSIONS</strong><br><br>')
               : content.body
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="text-swipezen-light-blue">$1</strong>')
           }}
         />
       )}
@@ -418,44 +430,44 @@ const PDFEditor = ({ pages, currentPage, onPageChange, onSave }) => {
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr className="bg-swipezen-blue text-white">
-              <th className="border border-gray-300 px-4 py-2 text-left">Module No.</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Topic</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Duration</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Type</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Module No.</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Topic</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Duration</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Type</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Description</th>
             </tr>
           </thead>
           <tbody>
             {content.modules.map((module, index) => (
-              <tr key={module.number} className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}>
-                <td className="border border-gray-300 px-4 py-2">{module.number}</td>
+              <tr key={module.number}>
+                <td className="border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900">{module.number}</td>
                 <td 
-                  className={`border border-gray-300 px-4 py-2 ${
-                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-50 editable-text'
+                  className={`border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900 ${
+                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-100 editable-text'
                   }`}
                   onClick={() => handleTextClick(module.topic, `${path}modules.${index}.topic`)}
                 >
                   {module.topic}
                 </td>
                 <td 
-                  className={`border border-gray-300 px-4 py-2 ${
-                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-50 editable-text'
+                  className={`border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900 ${
+                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-100 editable-text'
                   }`}
                   onClick={() => handleTextClick(module.duration.toString(), `${path}modules.${index}.duration`)}
                 >
                   {module.duration}
                 </td>
                 <td 
-                  className={`border border-gray-300 px-4 py-2 ${
-                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-50 editable-text'
+                  className={`border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900 ${
+                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-100 editable-text'
                   }`}
                   onClick={() => handleTextClick(module.type, `${path}modules.${index}.type`)}
                 >
                   {module.type}
                 </td>
                 <td 
-                  className={`border border-gray-300 px-4 py-2 ${
-                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-50 editable-text'
+                  className={`border border-gray-300 px-4 py-2 bg-blue-50 text-gray-900 ${
+                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-100 editable-text'
                   }`}
                   onClick={() => handleTextClick(module.description, `${path}modules.${index}.description`)}
                 >
@@ -481,21 +493,27 @@ const PDFEditor = ({ pages, currentPage, onPageChange, onSave }) => {
       </div>
       
       <div className="max-w-md mx-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-swipezen-blue text-white">
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Attribute</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Detail</th>
+            </tr>
+          </thead>
           <tbody>
             {content.details.map((detail, index) => (
-              <tr key={index} className="border-b border-gray-200">
+              <tr key={index}>
                 <td 
-                  className={`py-2 font-medium text-gray-700 p-1 rounded ${
-                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-50 editable-text'
+                  className={`border border-gray-300 px-4 py-2 bg-blue-50 text-gray-900 font-medium p-1 rounded ${
+                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-100 editable-text'
                   }`}
                   onClick={() => handleTextClick(detail.attribute, `${path}details.${index}.attribute`)}
                 >
                   {detail.attribute}
                 </td>
                 <td 
-                  className={`py-2 text-gray-900 p-1 rounded ${
-                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-50 editable-text'
+                  className={`border border-gray-300 px-4 py-2 bg-swipezen-light-blue text-gray-900 p-1 rounded ${
+                    currentPage === 1 || currentPage === 2 ? 'locked-area' : 'cursor-pointer hover:bg-blue-100 editable-text'
                   }`}
                   onClick={() => handleTextClick(detail.value, `${path}details.${index}.value`)}
                 >
@@ -513,7 +531,13 @@ const PDFEditor = ({ pages, currentPage, onPageChange, onSave }) => {
             }`}
             onClick={() => handleTextClick(content.note, `${path}note`)}
           >
-            <p className="text-sm text-gray-600">{content.note}</p>
+            <p 
+              className="text-sm text-gray-600"
+              dangerouslySetInnerHTML={{
+                __html: content.note
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="text-swipezen-light-blue">$1</strong>')
+              }}
+            />
           </div>
         )}
       </div>

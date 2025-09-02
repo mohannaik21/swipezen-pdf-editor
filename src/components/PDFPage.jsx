@@ -22,7 +22,7 @@ const PDFPage = ({ page, pageNumber, isEditing, onContentChange }) => {
       {content.title && (
         <h1 className={`font-bold text-gray-900 ${
           content.title === "TRAINING CONTRACT" 
-            ? "text-center text-3xl" // Page 3: centered and larger
+            ? "text-left text-3xl" // Page 3: left-aligned and larger
             : content.title === "ABOUT US"
             ? "text-left text-2xl" // Page 2: left-aligned
             : "text-center text-2xl" // Other pages: centered
@@ -183,12 +183,18 @@ const PDFPage = ({ page, pageNumber, isEditing, onContentChange }) => {
         </div>
       )}
       
+      {content.programOutcome && (
+        <div className="text-lg font-bold text-gray-900 text-left mt-6">
+          {content.programOutcome}
+        </div>
+      )}
+
       {content.body && (
         <div 
           className="text-sm text-gray-800 leading-relaxed whitespace-pre-line"
           dangerouslySetInnerHTML={{
             __html: content.body
-              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*\*(.*?)\*\*/g, '<strong class="text-swipezen-light-blue">$1</strong>')
               .replace(/\n\nTRAINING SESSIONS\n\n/g, '<br><br><strong>TRAINING SESSIONS</strong><br><br>')
           }}
         />
@@ -206,21 +212,21 @@ const PDFPage = ({ page, pageNumber, isEditing, onContentChange }) => {
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr className="bg-swipezen-blue text-white">
-              <th className="border border-gray-300 px-4 py-2 text-left">Module No.</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Topic</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Duration</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Type</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Module No.</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Topic</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Duration</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Type</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Description</th>
             </tr>
           </thead>
           <tbody>
             {content.modules.map((module, index) => (
-              <tr key={module.number} className={index % 2 === 0 ? 'bg-blue-50' : 'bg-white'}>
-                <td className="border border-gray-300 px-4 py-2">{module.number}</td>
-                <td className="border border-gray-300 px-4 py-2">{module.topic}</td>
-                <td className="border border-gray-300 px-4 py-2">{module.duration}</td>
-                <td className="border border-gray-300 px-4 py-2">{module.type}</td>
-                <td className="border border-gray-300 px-4 py-2">{module.description}</td>
+              <tr key={module.number}>
+                <td className="border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900">{module.number}</td>
+                <td className="border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900">{module.topic}</td>
+                <td className="border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900">{module.duration}</td>
+                <td className="border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900">{module.type}</td>
+                <td className="border border-gray-300 px-4 py-2 bg-blue-50 text-gray-900">{module.description}</td>
               </tr>
             ))}
           </tbody>
@@ -236,12 +242,22 @@ const PDFPage = ({ page, pageNumber, isEditing, onContentChange }) => {
       </h1>
       
       <div className="max-w-md mx-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-swipezen-blue text-white">
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Attribute</th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-bold">Detail</th>
+            </tr>
+          </thead>
           <tbody>
             {content.details.map((detail, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-2 font-medium text-gray-700">{detail.attribute}</td>
-                <td className="py-2 text-gray-900">{detail.value}</td>
+              <tr key={index}>
+                <td className="border border-gray-300 px-4 py-2 bg-blue-50 text-gray-900 font-medium">
+                  {detail.attribute}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 bg-swipezen-light-blue text-gray-900">
+                  {detail.value}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -249,7 +265,13 @@ const PDFPage = ({ page, pageNumber, isEditing, onContentChange }) => {
         
         {content.note && (
           <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">{content.note}</p>
+            <p 
+              className="text-sm text-gray-600"
+              dangerouslySetInnerHTML={{
+                __html: content.note
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="text-swipezen-light-blue">$1</strong>')
+              }}
+            />
           </div>
         )}
       </div>

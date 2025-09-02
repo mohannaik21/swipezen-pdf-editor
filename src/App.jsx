@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { Toaster } from 'react-hot-toast'
+import React, { useState, useRef } from 'react'
+import { Toaster, toast } from 'react-hot-toast'
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import Header from './components/Header'
 import PDFUploader from './components/PDFUploader'
 import PDFViewer from './components/PDFViewer'
@@ -11,17 +12,48 @@ function App() {
   const [isEditing, setIsEditing] = useState(false)
   const [pdfPages, setPdfPages] = useState([])
   const [currentPage, setCurrentPage] = useState(0)
+  
+  // PDF document management
+  const [pdfDoc, setPdfDoc] = useState(null)
+  const [lastSavedPages, setLastSavedPages] = useState([])
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [updatedPdfBytes, setUpdatedPdfBytes] = useState(null)
+  const fileInputRef = useRef(null)
+  const [isDownloading, setIsDownloading] = useState(false)
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = async (file) => {
     setPdfFile(file)
-    // For demo purposes, we'll create mock pages based on the 12-page PDF structure
-    const mockPages = Array.from({ length: 12 }, (_, index) => ({
-      id: index + 1,
-      content: getMockPageContent(index + 1),
-      lockedAreas: getLockedAreas()
-    }))
-    setPdfPages(mockPages)
-    setCurrentPage(0)
+    
+    try {
+      // Initialize PDF document
+      const arrayBuffer = await file.arrayBuffer()
+      const pdfDoc = await PDFDocument.load(arrayBuffer)
+      setPdfDoc(pdfDoc)
+      
+      // For demo purposes, we'll create mock pages based on the 12-page PDF structure
+      const mockPages = Array.from({ length: 12 }, (_, index) => ({
+        id: index + 1,
+        content: getMockPageContent(index + 1),
+        lockedAreas: getLockedAreas()
+      }))
+      
+      setPdfPages(mockPages)
+      setLastSavedPages(mockPages)
+      setCurrentPage(0)
+      setHasUnsavedChanges(false)
+      setUpdatedPdfBytes(null)
+    } catch (error) {
+      console.error('Error loading PDF:', error)
+      // Fallback to mock pages if PDF loading fails
+      const mockPages = Array.from({ length: 12 }, (_, index) => ({
+        id: index + 1,
+        content: getMockPageContent(index + 1),
+        lockedAreas: getLockedAreas()
+      }))
+      setPdfPages(mockPages)
+      setLastSavedPages(mockPages)
+      setCurrentPage(0)
+    }
   }
 
   const getMockPageContent = (pageNumber) => {
@@ -66,22 +98,6 @@ function App() {
         }
       },
       6: {
-        title: "PUBLICITY AND MARKETING",
-        body: "The Client authorizes the Trainer to utilize the Client's logo and associated trademarks as well as any media, photos, or footage from any training session solely for marketing the Trainer's services.\n\nThe Trainer shall use such materials in a professional and respectful manner.\n\nThe Client shall have the right to review and approve any marketing materials before publication.\n\nThe Trainer shall not use any confidential or proprietary information in marketing materials.\n\nBoth parties shall benefit from positive publicity generated through the training partnership.\n\nThe Client may also use the Trainer's branding in their own marketing materials with prior approval."
-      },
-      7: {
-        title: "NO MODIFICATION UNLESS IN WRITING",
-        body: "No modification of this Contract shall be valid unless in writing and agreed upon by both Parties.\n\nAny changes to the scope of work must be documented and signed by both parties.\n\nPrice adjustments must be agreed upon in writing before implementation.\n\nSchedule changes must be communicated in writing with reasonable notice.\n\nBoth parties shall maintain written records of all modifications.\n\nThis clause ensures clarity and prevents misunderstandings."
-      },
-      8: {
-        title: "APPLICABLE LAW",
-        body: "This Contract and the interpretation of its terms shall be governed by and construed in accordance with the laws of the State of Karnataka and subject to the exclusive jurisdiction of the federal and state courts located in the country, India.\n\nAny disputes arising from this contract shall be resolved through arbitration in Bengaluru.\n\nThe prevailing party shall be entitled to recover reasonable attorney fees.\n\nThis contract is enforceable in all jurisdictions where the services are provided.\n\nBoth parties agree to submit to the jurisdiction of the courts in Karnataka.\n\nThis clause ensures legal clarity and dispute resolution procedures."
-      },
-      9: {
-        title: "IN WITNESS WHEREOF",
-        body: "IN WITNESS WHEREOF, each of the Parties have executed this Contract, both Parties by its duly authorized officer, as of the day and year set forth below.\n\nThis contract shall be effective from the date of signing by both parties.\n\nBoth parties acknowledge that they have read and understood all terms and conditions.\n\nThe contract shall remain in effect until all obligations are fulfilled.\n\nAny amendments must be made in writing and signed by both parties.\n\nThis document represents the complete agreement between the parties."
-      },
-      10: {
         title: "EXHIBIT A - Web Development + Cloud DevOps",
         modules: [
           {
@@ -89,18 +105,18 @@ function App() {
             topic: "Introduction to Web Development, SDLC & Client-Server Architecture",
             duration: 2,
             type: "Theory",
-            description: "Introduces key concepts of modern web development, Software Development Life Cycle (SDLC), and the client-server model."
+            description: "Introduces key concepts of modern web development, Software Development Life Cycle (SDLC), and the client-server model. Establishes foundational understanding for application development and deployment."
           },
           {
             number: 2,
             topic: "APIs - REST vs SOAP (Simplified Overview)",
             duration: 1.5,
             type: "Theory",
-            description: "Explains the basics of Application Programming Interfaces (APIs), REST vs SOAP protocols, and how frontend and backend communicate."
+            description: "Explains the basics of Application Programming Interfaces (APIs), REST vs SOAP protocols, and how frontend and backend communicate. Uses real-life analogies for easy understanding."
           }
         ]
       },
-      11: {
+      7: {
         title: "EXHIBIT A - Web Development + Cloud DevOps Contd...",
         modules: [
           {
@@ -108,18 +124,18 @@ function App() {
             topic: "Source Control using Git and GitHub",
             duration: 1.5,
             type: "Hands-On",
-            description: "Teaches students to use Git for version control and GitHub for collaborative code management."
+            description: "Teaches students to use Git for version control and GitHub for collaborative code management. Focuses on basic commands (init, add, commit, push) and real-time usage scenarios."
           },
           {
             number: 4,
             topic: "Creating Web Pages with HTML",
             duration: 3,
             type: "Hands-On",
-            description: "Guides students through building static webpages using HTML5 including headings, images, links, forms, and semantic elements."
+            description: "Guides students through building static webpages using HTML5 including headings, images, links, forms, and semantic elements. Emphasizes clean and structured markup."
           }
         ]
       },
-      12: {
+      8: {
         title: "EXHIBIT A - Web Development + Cloud DevOps Contd...",
         modules: [
           {
@@ -134,9 +150,63 @@ function App() {
             topic: "JavaScript Fundamentals for Web Interactivity",
             duration: 3.5,
             type: "Hands-On",
-            description: "Covers essential JavaScript programming for the web: variables, functions, events, conditions, loops, and DOM manipulation."
+            description: "Covers essential JavaScript programming for the web: variables, functions, events, conditions, loops, and DOM manipulation. Students learn to make webpages interactive."
           }
         ]
+      },
+      9: {
+        title: "EXHIBIT A - Web Development + Cloud DevOps Contd...",
+        modules: [
+          {
+            number: 7,
+            topic: "Form Handling and Validation using JavaScript",
+            duration: 2.5,
+            type: "Hands-On",
+            description: "Implements real-time form validation and user feedback using basic JavaScript. Includes error messages, required fields, and success notifications."
+          },
+          {
+            number: 8,
+            topic: "Introduction to Cloud Computing & Microsoft Azure",
+            duration: 2.5,
+            type: "Theory + Demo",
+            description: "Introduces students to cloud computing concepts and the Azure platform. Covers Azure portal, core services, and real-time walkthrough of how Azure hosts websites."
+          }
+        ]
+      },
+      10: {
+        title: "EXHIBIT A - Web Development + Cloud DevOps Contd...",
+        modules: [
+          {
+            number: 9,
+            topic: "Deploying Web Projects on Azure + Azure Functions",
+            duration: 5,
+            type: "Hands-On",
+            description: "Hands-on experience hosting HTML/CSS/JS websites using Azure App Service. Students create a simple Azure Function (serverless) and connect it to a form for backend processing."
+          },
+          {
+            number: 10,
+            topic: "Capstone Project - Live Portfolio Website with Contact Form",
+            duration: 6,
+            type: "Project-Based",
+            description: "Students build and deploy a personal portfolio website with interactive sections and a working contact form connected to Azure Function. Final project includes presentation and submission."
+          }
+        ]
+      },
+      11: {
+        title: "EXHIBIT A - Web Development + Cloud DevOps Contd...",
+        programOutcome: "Program Outcome:",
+        body: "This is a training program for one month which includes **30 hours of training on Web Development Bootcamp: From HTML to Cloud.** At the end of the training, students will be allocated a Mini Project which will help them to get exposure to solving real world problems along with our team. The program aims at enhancing the overall **employability of the students** by upskilling them for **Full Stack Development, Frontend, Backend development** and similar job roles in the IT industry."
+      },
+      12: {
+        title: "EXHIBIT B",
+        details: [
+          { attribute: "Target Audience", value: "MCA Students" },
+          { attribute: "Semester", value: "2" },
+          { attribute: "Duration", value: "30 hours of Training" },
+          { attribute: "Date", value: "TBD" },
+          { attribute: "No. of Students", value: "120" }
+        ],
+        note: "This proposal has been prepared assuming **two batches of 60 students each.**"
       }
     }
     
@@ -152,30 +222,156 @@ function App() {
     }
   }
 
-  // Function to determine which areas are locked for each page
-  const getPageLockedAreas = (pageNumber) => {
-    const baseLockedAreas = getLockedAreas()
-    
-    // Page 2 and Page 3 have all content locked
-    if (pageNumber === 2 || pageNumber === 3) {
-      return {
-        ...baseLockedAreas,
-        content: true // Lock all content on pages 2 and 3
+  // Helper to build a PDF from the current pages state
+  const generatePdfBytesFromPages = async (pages) => {
+    const newPdfDoc = await PDFDocument.create()
+    for (let i = 0; i < pages.length; i++) {
+      const page = newPdfDoc.addPage([612, 792])
+      const font = await newPdfDoc.embedFont(StandardFonts.Helvetica)
+
+      const pageData = pages[i]
+      if (!pageData?.content) continue
+
+      let yPosition = 750
+      const drawLines = (text, size = 12) => {
+        const clean = text.replace(/\*\*(.*?)\*\*/g, '$1')
+        for (const line of clean.split('\n')) {
+          if (!line.trim()) continue
+          page.drawText(line.trim(), { x: 50, y: yPosition, size, font, color: rgb(0, 0, 0) })
+          yPosition -= 20
+        }
+      }
+
+      if (pageData.content.title) {
+        page.drawText(pageData.content.title, { x: 50, y: yPosition, size: 16, font, color: rgb(0, 0, 0) })
+        yPosition -= 30
+      }
+      if (pageData.content.recipient) { drawLines(pageData.content.recipient, 14); yPosition -= 10 }
+      if (pageData.content.greeting) { page.drawText(pageData.content.greeting, { x: 50, y: yPosition, size: 16, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.date) { page.drawText(pageData.content.date, { x: 50, y: yPosition, size: 12, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.programOutcome) { page.drawText(pageData.content.programOutcome, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.body) drawLines(pageData.content.body)
+      if (pageData.content.contractIntro) { drawLines(pageData.content.contractIntro); yPosition -= 10 }
+      if (pageData.content.whereas) { drawLines(pageData.content.whereas) }
+      if (pageData.content.therefore) { drawLines(pageData.content.therefore) }
+      if (pageData.content.trainingTitle) { page.drawText(pageData.content.trainingTitle, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.trainingBody) drawLines(pageData.content.trainingBody)
+      if (pageData.content.compensationTitle) { page.drawText(pageData.content.compensationTitle, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.compensationBody) { drawLines(pageData.content.compensationBody); yPosition -= 10 }
+      if (pageData.content.cancellingTitle) { page.drawText(pageData.content.cancellingTitle, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.cancellingBody) { drawLines(pageData.content.cancellingBody); yPosition -= 10 }
+      if (pageData.content.publicityTitle) { page.drawText(pageData.content.publicityTitle, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.publicityBody) drawLines(pageData.content.publicityBody)
+      if (pageData.content.modificationTitle) { page.drawText(pageData.content.modificationTitle, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.modificationBody) { drawLines(pageData.content.modificationBody); yPosition -= 10 }
+      if (pageData.content.lawTitle) { page.drawText(pageData.content.lawTitle, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.lawBody) { drawLines(pageData.content.lawBody); yPosition -= 10 }
+      if (pageData.content.witnessTitle) { page.drawText(pageData.content.witnessTitle, { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25 }
+      if (pageData.content.witnessBody) { drawLines(pageData.content.witnessBody); yPosition -= 10 }
+      if (pageData.content.signatories) {
+        page.drawText(`${pageData.content.signatories.swipegen}:`, { x: 50, y: yPosition, size: 12, font, color: rgb(0, 0, 0) }); yPosition -= 30
+        page.drawText(`${pageData.content.signatories.dscasc}:`, { x: 50, y: yPosition, size: 12, font, color: rgb(0, 0, 0) })
+      }
+      if (pageData.content.modules) {
+        yPosition -= 20; page.drawText('Module Details:', { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25
+        for (const m of pageData.content.modules) { page.drawText(`Module ${m.number}: ${m.topic}`, { x: 50, y: yPosition, size: 12, font, color: rgb(0, 0, 0) }); yPosition -= 20 }
+      }
+      if (pageData.content.details) {
+        yPosition -= 20; page.drawText('Details:', { x: 50, y: yPosition, size: 14, font, color: rgb(0, 0, 0) }); yPosition -= 25
+        for (const d of pageData.content.details) { page.drawText(`${d.attribute}: ${d.value}`, { x: 50, y: yPosition, size: 12, font, color: rgb(0, 0, 0) }); yPosition -= 20 }
+        if (pageData.content.note) { yPosition -= 10; drawLines(pageData.content.note) }
       }
     }
-    
-    return baseLockedAreas
+    return await newPdfDoc.save()
   }
 
-  const handleSave = (updatedPages) => {
+  const handleSave = async (updatedPages) => {
+    try {
+      const pdfBytes = await generatePdfBytesFromPages(updatedPages)
+      setUpdatedPdfBytes(pdfBytes)
+      setPdfPages(updatedPages)
+      setLastSavedPages(updatedPages)
+      setHasUnsavedChanges(false)
+      setIsEditing(false)
+      console.log('Changes saved to PDF document')
+      toast.success('Changes saved. You can now download the updated PDF.')
+    } catch (error) {
+      console.error('Error saving changes:', error)
+      toast.error('Failed to save changes')
+    }
+  }
+
+  const handleContentChange = (pageIndex, newContent) => {
+    const updatedPages = [...pdfPages]
+    updatedPages[pageIndex] = {
+      ...updatedPages[pageIndex],
+      content: newContent
+    }
     setPdfPages(updatedPages)
-    setIsEditing(false)
-    // Here you would typically save to backend or generate PDF
+    setHasUnsavedChanges(true)
   }
 
-  const handleDownload = () => {
-    // Implementation for PDF generation and download
-    console.log('Downloading PDF with updated content...')
+  const handleDownload = async () => {
+    if (isDownloading) return
+    
+    setIsDownloading(true)
+    try {
+      let bytesToDownload = updatedPdfBytes
+      
+      // If there are unsaved changes, generate PDF from current pages
+      if (hasUnsavedChanges) {
+        console.log('Generating PDF from current unsaved pages...')
+        bytesToDownload = await generatePdfBytesFromPages(pdfPages)
+        // Don't set updatedPdfBytes here since changes aren't saved yet
+      } else if (!bytesToDownload) {
+        // If no saved edits and no unsaved changes, generate from current pages
+        console.log('No saved edits found. Generating PDF from current pages...')
+        bytesToDownload = await generatePdfBytesFromPages(pdfPages)
+        setUpdatedPdfBytes(bytesToDownload)
+      }
+
+      const blob = new Blob([bytesToDownload], { type: 'application/pdf' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'swipezen-pdf-edited.pdf'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      console.log('PDF download started')
+      
+      if (hasUnsavedChanges) {
+        toast.success('PDF downloaded with current changes. Remember to save changes to preserve them.')
+      } else {
+        toast.success('PDF download started')
+      }
+    } catch (error) {
+      console.error('Error downloading PDF:', error)
+      toast.error('Failed to download PDF')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
+  const handleDownloadOriginal = async () => {
+    if (!pdfFile) return
+    
+    try {
+      const blob = new Blob([await pdfFile.arrayBuffer()], { type: 'application/pdf' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = pdfFile.name || 'swipezen-pdf-original.pdf'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      toast.success('Original PDF downloaded')
+    } catch (error) {
+      console.error('Error downloading original PDF:', error)
+      toast.error('Failed to download original PDF')
+    }
   }
 
   return (
@@ -211,19 +407,37 @@ function App() {
                     <button
                       onClick={() => handleSave(pdfPages)}
                       className="btn-primary"
+                      disabled={!hasUnsavedChanges}
                     >
-                      Save Changes
+                      {hasUnsavedChanges ? 'Save Changes*' : 'Save Changes'}
                     </button>
                   </>
                 )}
                 <button
                   onClick={handleDownload}
-                  className="btn-primary"
+                  className={`btn-primary ${hasUnsavedChanges ? 'bg-orange-500 hover:bg-orange-600' : ''} ${isDownloading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={!pdfDoc || isDownloading}
+                  title={hasUnsavedChanges ? 'Download current version (includes unsaved changes)' : 'Download saved PDF'}
                 >
-                  Download PDF
+                  {isDownloading ? 'Generating...' : hasUnsavedChanges ? 'Download Current*' : 'Download PDF'}
+                </button>
+                <button
+                  onClick={handleDownloadOriginal}
+                  className="btn-secondary"
+                  disabled={!pdfFile}
+                >
+                  Download Original
                 </button>
               </div>
             </div>
+            
+            {hasUnsavedChanges && (
+              <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-sm text-orange-800">
+                  <strong>Note:</strong> You have unsaved changes. You can download the current version, but remember to save changes to preserve them permanently.
+                </p>
+              </div>
+            )}
             
             {isEditing ? (
               <PDFEditor
@@ -231,6 +445,7 @@ function App() {
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 onSave={handleSave}
+                onContentChange={handleContentChange}
               />
             ) : (
               <PDFViewer

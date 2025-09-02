@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChevronLeft, ChevronRight, Phone, Mail, Globe } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import PDFPage from './PDFPage'
 
 const PDFViewer = ({ pages, currentPage, onPageChange }) => {
@@ -33,7 +33,7 @@ const PDFViewer = ({ pages, currentPage, onPageChange }) => {
 
   return (
     <div className="space-y-6">
-      {/* Page Navigation */}
+      {/* Page Navigation (Top) */}
       <div className="page-navigation">
         <button
           onClick={goToPreviousPage}
@@ -104,6 +104,8 @@ const PDFViewer = ({ pages, currentPage, onPageChange }) => {
             pageNumber={currentPage + 1}
             isEditing={false}
             onContentChange={() => {}}
+            // 🔑 Fix alignment for page 3 heading
+            forceLeftAlignHeading={currentPage === 2} 
           />
         </div>
       </div>
@@ -181,3 +183,8 @@ const PDFViewer = ({ pages, currentPage, onPageChange }) => {
 }
 
 export default PDFViewer
+
+
+
+
+
